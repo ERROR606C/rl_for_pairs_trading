@@ -31,6 +31,7 @@ class Market(gym.Env):
     def _get_obs(self):
         return {
             "spread": self._get_spread(),
+            "spread_z_score": self._get_spread_z_score(),
             "position": self._in_position
         }
         
@@ -44,6 +45,17 @@ class Market(gym.Env):
         spread = self._pair_data.s[0][self._t] - beta * self._pair_data.s[1][self._t]
         
         return np.array([spread], dtype=np.float32)
+
+    def _get_spread_z_score(self):
+        s0 = self._pair_data.s[0][self._t - self._past_window:self._t]
+        s1 = self._pair_data.s[1][self._t - self._past_window:self._t]
+        
+        beta = np.polyfit(s1, s0, 1)[0]
+
+        spread_window = s0 - beta * s1
+        current_spread = self._pair_data.s[0][self._t] - beta * self._pair_data.s[1][self._t]
+        zscore = (current_spread - spread_window.mean()) / (spread_window.std() + 1e-8)
+        return np.array([zscore], dtype=np.float32)
     
     def reset(self, seed=None):
         super().reset(seed=seed)
