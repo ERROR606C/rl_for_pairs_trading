@@ -12,6 +12,13 @@ class PairData:
     def __len__(self):
         return len(self.s[0])
 
+    def slice(self, start=0, end=None):
+        new = object.__new__(PairData)
+        new.labels = self.labels
+        new.timestamps = self.timestamps[start:end]
+        new.s = self.s[:, start:end]
+        return new
+
 
 if __name__ == "__main__":
     import sys

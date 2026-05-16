@@ -61,7 +61,7 @@ class Market(gym.Env):
 
         spread_window = s0 - beta * s1
         current_spread = self._pair_data.s[0][self._t] - beta * self._pair_data.s[1][self._t]
-        zscore = (current_spread - spread_window.mean()) / (spread_window.std() + 1e-8)
+        zscore = (current_spread) / (spread_window.std() + 1e-8)
         return np.array([zscore], dtype=np.float32)
     
     def reset(self, seed=None):
