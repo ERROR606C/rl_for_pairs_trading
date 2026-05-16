@@ -9,11 +9,12 @@ class Actions(Enum):
     Swap = 1
     
 class Market(gym.Env):
-    def __init__ (self, pair_data: PairData, past_window=60, initial_capital = 10000):
+    def __init__ (self, pair_data: PairData, past_window=60, initial_capital = 10000, fixed_beta = None):
         self._initial_capital = initial_capital
         self._capital = initial_capital
         self._position = np.array([0,0]) #  actual current position in the real stocks
-        
+        self._fixed_beta = fixed_beta
+
         self._pair_data = pair_data
         self._past_window = past_window # how many ticks in the past we look to compute spread
         self._in_position = 0 # 0 if currently outside the position, 1 if currently in the position
@@ -40,8 +41,11 @@ class Market(gym.Env):
         s0 = self._pair_data.s[0][self._t - self._past_window:self._t]
         s1 = self._pair_data.s[1][self._t - self._past_window:self._t]
         
-        beta = np.polyfit(s1, s0, 1)[0]
-        
+        if self._fixed_beta is None:
+            beta = np.polyfit(s1, s0, 1)[0]
+        else:
+            beta = self._fixed_beta
+            
         spread = self._pair_data.s[0][self._t] - beta * self._pair_data.s[1][self._t]
         
         return np.array([spread], dtype=np.float32)
@@ -50,7 +54,10 @@ class Market(gym.Env):
         s0 = self._pair_data.s[0][self._t - self._past_window:self._t]
         s1 = self._pair_data.s[1][self._t - self._past_window:self._t]
         
-        beta = np.polyfit(s1, s0, 1)[0]
+        if self._fixed_beta is None:
+            beta = np.polyfit(s1, s0, 1)[0]
+        else:
+            beta = self._fixed_beta
 
         spread_window = s0 - beta * s1
         current_spread = self._pair_data.s[0][self._t] - beta * self._pair_data.s[1][self._t]
