@@ -86,7 +86,6 @@ class Market(gym.Env):
                 half = self._capital / 2
                 self._position[cheap_i] = half / self._pair_data.s[cheap_i][self._t]
                 self._position[expensive_i] = -(half / self._pair_data.s[expensive_i][self._t])
-                self._capital = 0.0
             else:  # exiting position
                 self._capital = self._get_pnl()
                 self._position = np.zeros(2)
