@@ -61,18 +61,23 @@ def plot_strategy(results: dict):
 
     fig, axes = plt.subplots(4, 1, figsize=(14, 16), sharex=True)
 
-    axes[0].plot(pnl)
+    initial = float(pnl[~np.isnan(pnl)][0])
+    benchmark = initial * (1 + 0.05 / 252) ** np.arange(len(pnl))
+
+    axes[0].plot(pnl, label="strategy")
+    axes[0].plot(benchmark, color="gray", linewidth=1, linestyle="--", label="5% p.a.")
     axes[0].set_title("Portfolio Value")
     axes[0].set_ylabel("Value ($)")
+    axes[0].legend()
 
     axes[1].plot(s0, label=labels[0])
     axes[1].plot(s1, label=labels[1])
     if entries:
-        axes[1].scatter(entries, s0[entries], color="green", zorder=5, s=25, label="entry")
-        axes[1].scatter(entries, s1[entries], color="green", zorder=5, s=25)
+        axes[1].scatter(entries, s0[entries], color="green", zorder=5, s=8, label="entry")
+        axes[1].scatter(entries, s1[entries], color="green", zorder=5, s=8)
     if exits:
-        axes[1].scatter(exits, s0[exits], color="red", zorder=5, s=25, label="exit")
-        axes[1].scatter(exits, s1[exits], color="red", zorder=5, s=25)
+        axes[1].scatter(exits, s0[exits], color="red", zorder=5, s=8, label="exit")
+        axes[1].scatter(exits, s1[exits], color="red", zorder=5, s=8)
     axes[1].set_title("Stock Prices")
     axes[1].set_ylabel("Price ($)")
     axes[1].legend()
@@ -84,9 +89,9 @@ def plot_strategy(results: dict):
     axes[2].axhline(0.5,  color="orange", linewidth=0.8, linestyle="--")
     axes[2].axhline(-0.5, color="orange", linewidth=0.8, linestyle="--")
     if entries:
-        axes[2].scatter(entries, zscores[entries], color="green", zorder=5, s=25, label="entry")
+        axes[2].scatter(entries, zscores[entries], color="green", zorder=5, s=8, label="entry")
     if exits:
-        axes[2].scatter(exits, zscores[exits], color="red", zorder=5, s=25, label="exit")
+        axes[2].scatter(exits, zscores[exits], color="red", zorder=5, s=8, label="exit")
     axes[2].set_title("Z-score (green=entry ±2, orange=exit ±0.5)")
     axes[2].set_ylabel("Z-score")
     axes[2].legend()
@@ -94,9 +99,9 @@ def plot_strategy(results: dict):
     axes[3].plot(spreads)
     axes[3].axhline(0, color="gray", linewidth=0.8, linestyle="--")
     if entries:
-        axes[3].scatter(entries, spreads[entries], color="green", zorder=5, s=25, label="entry")
+        axes[3].scatter(entries, spreads[entries], color="green", zorder=5, s=8, label="entry")
     if exits:
-        axes[3].scatter(exits, spreads[exits], color="red", zorder=5, s=25, label="exit")
+        axes[3].scatter(exits, spreads[exits], color="red", zorder=5, s=8, label="exit")
     axes[3].set_title("Raw spread (beta-adjusted, rolling window)")
     axes[3].set_ylabel("Spread")
     axes[3].set_xlabel("Time step")
@@ -104,5 +109,3 @@ def plot_strategy(results: dict):
 
     plt.tight_layout()
     plt.show()
-
-    return fig
